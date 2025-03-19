@@ -9,6 +9,8 @@ export type TreeDataNode<T extends AnyObject = AnyObject> = {
   disabled?: boolean;
   isLeaf?: boolean;
   children?: TreeDataNode<T>[];
+
+  extra?: React.ReactNode;
 } & T;
 
 export type FlattenedNode<T extends AnyObject = AnyObject> = TreeDataNode<T> & {

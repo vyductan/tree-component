@@ -146,7 +146,6 @@ type TreeProps<TRecord extends AnyObject = AnyObject> = {
   //   | boolean
   //   | ((dragItem: FlattenedNode<TRecord>) => boolean);
 
-  // own props
   /** Whether to allow dropping on the node */
   allowDrop?: (
     /// DragEndEvent &
@@ -329,7 +328,7 @@ const Tree = <TRecord extends AnyObject = AnyObject>({
         strategy={customVerticalListSortingStrategy(strategyCallback)}
       >
         <ul role="tree">
-          {flattenedItems.map(({ key, title, depth, icon, isLeaf }) => {
+          {flattenedItems.map(({ key, title, depth, icon, isLeaf, extra }) => {
             const collapsed = expandedKeys.includes(key);
             return (
               <TreeItem
@@ -358,6 +357,8 @@ const Tree = <TRecord extends AnyObject = AnyObject>({
                 // parent={
                 //   key === activeId && projected ? projected.parent : parent
                 // }
+
+                extra={extra}
               />
             );
           })}

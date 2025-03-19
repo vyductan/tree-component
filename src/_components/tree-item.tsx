@@ -47,6 +47,8 @@ type TreeItemProps = Omit<React.ComponentProps<"li">, "id"> &
       itemContent?: string;
       clone?: string;
     };
+
+    extra?: React.ReactNode;
   };
 
 export function TreeItem({
@@ -74,6 +76,8 @@ export function TreeItem({
   icon,
   disableAnimation,
   classNames,
+
+  extra,
 
   ...props
 }: TreeItemProps) {
@@ -109,6 +113,7 @@ export function TreeItem({
       data-slot="tree-item"
       role="treeitem"
       className={cn(
+        "group/tree-item",
         "-mb-px list-none pl-(--spacing-depth)",
         // clone && "pointer-events-none inline-block p-0 pt-[5px] pl-2.5",
         clone &&
@@ -127,6 +132,9 @@ export function TreeItem({
         disableInteraction && "pointer-events-none",
         disableSelection && "select-none",
         classNames?.item,
+        // own
+        "relative",
+        // !!extra && "flex",
       )}
       ref={setDroppableNodeRef}
       style={
@@ -203,11 +211,9 @@ export function TreeItem({
         {/*     } */}
         {/*   /> */}
         {/* )} */}
-        <div className="flex grow-1 items-center gap-2">
+        <div className="flex w-full items-center gap-2">
           {icon}
-          <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-            {title}
-          </span>
+          <span className="truncate">{title}</span>
         </div>
 
         {!clone && onRemove && (
@@ -238,6 +244,8 @@ export function TreeItem({
           <></>
         )}
       </div>
+
+      {extra}
     </li>
   );
 }
