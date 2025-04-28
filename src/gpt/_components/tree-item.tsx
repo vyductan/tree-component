@@ -3,7 +3,7 @@ import type { UniqueIdentifier } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { Card } from "@acme/ui/card";
+import { Card } from "@acme/ui/components/card";
 
 import { TreeDataNode } from "../types";
 

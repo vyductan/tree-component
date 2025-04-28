@@ -1,5 +1,5 @@
-import type { ButtonProps } from "@acme/ui/button";
-import { Button } from "@acme/ui/button";
+import type { ButtonProps } from "@acme/ui/components/button";
+import { Button } from "@acme/ui/components/button";
 import { Icon } from "@acme/ui/icons";
 
 export const HandleButton = (props: ButtonProps) => {

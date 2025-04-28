@@ -1,5 +1,5 @@
-import { cn } from "@acme/ui";
-import { GenericSlot } from "@acme/ui/slot";
+import { GenericSlot } from "@acme/ui/components/slot";
+import { cn } from "@acme/ui/lib/utils";
 
 function TreeItemAction({
   className,

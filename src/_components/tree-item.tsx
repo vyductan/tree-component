@@ -4,9 +4,9 @@ import type { AnimateLayoutChanges } from "@dnd-kit/sortable";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { cn } from "@acme/ui";
-import { Button } from "@acme/ui/button";
+import { Button } from "@acme/ui/components/button";
 import { Icon } from "@acme/ui/icons";
+import { cn } from "@acme/ui/lib/utils";
 
 import type { TreeDataNode } from "../types";
 import { iOS } from "../utils";

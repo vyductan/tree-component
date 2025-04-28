@@ -14,7 +14,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-import { Card } from "@acme/ui/card";
+import { Card } from "@acme/ui/components/card";
 
 import type { TreeDataNode } from "./types";
 import { TreeItem } from "./_components/tree-item";
@@ -39,7 +39,10 @@ function Tree() {
     useSensor(KeyboardSensor),
   );
 
-    const findItemById = (id: string, nodes: TreeDataNode[]): TreeDataNode | undefined => {
+  const findItemById = (
+    id: string,
+    nodes: TreeDataNode[],
+  ): TreeDataNode | undefined => {
     for (const node of nodes) {
       if (node.key === id) return node;
       if (node.children) {
@@ -54,10 +57,10 @@ function Tree() {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-  setItems((prevItems) => {
+    setItems((prevItems) => {
       const activeItem = findItemById(active.id as string, prevItems);
       if (!activeItem) return prevItems;
-      
+
       return prevItems.map((item) => {
         if (item.key === over.id) {
           return { ...item, children: [...(item.children ?? []), activeItem] };
