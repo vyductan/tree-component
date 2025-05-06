@@ -32,7 +32,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useMergedState } from "@rc-component/util";
 import { createPortal } from "react-dom";
 
-import type { AnyObject } from "@acme/ui";
+import type { AnyObject } from "@acme/ui/types";
 
 import type { TreeItemProps } from "./_components/tree-item";
 import type { FlattenedNode, SensorContext, TreeDataNode } from "./types";
@@ -328,40 +328,45 @@ const Tree = <TRecord extends AnyObject = AnyObject>({
         strategy={customVerticalListSortingStrategy(strategyCallback)}
       >
         <ul role="tree">
-          {flattenedItems.map(({ key, title, depth, icon, isLeaf, extra }) => {
-            const collapsed = expandedKeys.includes(key);
-            return (
-              <TreeItem
-                key={key}
-                id={key}
-                title={title}
-                disableAnimation={disableAnimation}
-                classNames={classNames}
-                depth={key === activeId && projected ? projected.depth : depth}
-                indentationWidth={indentationWidth}
-                indicator={indicator}
-                collapsed={Boolean(
-                  // collapsed && children && children.length > 0,
-                  collapsed,
-                )}
-                onCollapse={
-                  // collapsible && children && children.length > 0
-                  collapsible ? () => handleCollapse(key) : undefined
-                }
-                onRemove={removable ? () => handleRemove(key) : undefined}
-                icon={icon}
-                isLeaf={isLeaf}
-                // isLeaf={
-                //   key === activeId && projected ? projected.isLeaf : isLeaf
-                // }
-                // parent={
-                //   key === activeId && projected ? projected.parent : parent
-                // }
+          {flattenedItems.map(
+            ({ key, title, depth, icon, isLeaf, extra, onClick }) => {
+              const collapsed = expandedKeys.includes(key);
+              return (
+                <TreeItem
+                  key={key}
+                  id={key}
+                  title={title}
+                  disableAnimation={disableAnimation}
+                  classNames={classNames}
+                  depth={
+                    key === activeId && projected ? projected.depth : depth
+                  }
+                  indentationWidth={indentationWidth}
+                  indicator={indicator}
+                  collapsed={Boolean(
+                    // collapsed && children && children.length > 0,
+                    collapsed,
+                  )}
+                  onCollapse={
+                    // collapsible && children && children.length > 0
+                    collapsible ? () => handleCollapse(key) : undefined
+                  }
+                  onRemove={removable ? () => handleRemove(key) : undefined}
+                  icon={icon}
+                  isLeaf={isLeaf}
+                  // isLeaf={
+                  //   key === activeId && projected ? projected.isLeaf : isLeaf
+                  // }
+                  // parent={
+                  //   key === activeId && projected ? projected.parent : parent
+                  // }
 
-                extra={extra}
-              />
-            );
-          })}
+                  extra={extra}
+                  onClick={onClick}
+                />
+              );
+            },
+          )}
           {/* <TreeItem
             key={123}
             id={123}
