@@ -1,6 +1,6 @@
 import type { UniqueIdentifier } from "@dnd-kit/core";
 
-import type { AnyObject } from "@acme/ui";
+import type { AnyObject } from "@acme/ui/types";
 
 export type TreeDataNode<T extends AnyObject = AnyObject> = {
   key: UniqueIdentifier;
