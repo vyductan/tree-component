@@ -114,7 +114,6 @@ export const sortableTreeKeyboardCoordinates: (
       const collisions = closestCorners({
         active,
         collisionRect,
-        // eslint-disable-next-line unicorn/no-null
         pointerCoordinates: null,
         droppableRects,
         droppableContainers: containers,
