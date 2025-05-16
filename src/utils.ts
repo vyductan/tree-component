@@ -1,7 +1,7 @@
 import type { UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
-import type { AnyObject } from "@acme/ui";
+import type { AnyObject } from "@acme/ui/types";
 
 import type { TreeProps } from "./tree";
 import type { FlattenedNode, TreeDataNode } from "./types";
@@ -163,7 +163,7 @@ export function getProjection<TRecord extends AnyObject>(
 // }
 
 function flatten<TRecord extends AnyObject>(
-  items: TreeDataNode[],
+  items: TreeDataNode<TRecord>[],
   parentId: UniqueIdentifier | null = null,
   parent: FlattenedNode<TRecord> | null = null,
   depth = 0,
@@ -192,33 +192,47 @@ function flatten<TRecord extends AnyObject>(
   return result;
 }
 
-export function flattenTree(items: TreeDataNode[]): FlattenedNode[] {
+export function flattenTree<TRecord extends AnyObject>(
+  items: TreeDataNode<TRecord>[],
+): FlattenedNode<TRecord>[] {
   return flatten(items);
 }
 
-export function buildTree(flattenedItems: FlattenedNode[]): TreeDataNode[] {
-  const root: TreeDataNode = { key: "root", title: "", children: [] };
-  const nodes: Record<string, TreeDataNode> = { [root.key]: root };
+export function buildTree<TRecord extends AnyObject>(
+  flattenedItems: FlattenedNode<TRecord>[],
+): TreeDataNode<TRecord>[] {
+  const root: TreeDataNode<TRecord> = {
+    key: "root",
+    title: "",
+    children: [],
+    record: undefined,
+  };
+  const nodes: Record<string, TreeDataNode<TRecord>> = { [root.key]: root };
   const items = flattenedItems.map((item) => ({ ...item, children: [] }));
 
   for (const item of items) {
-    const { key, title, children } = item;
+    // const { key, title, children } = item;
+    const { key } = item;
     const parentId = item.parentId ?? root.key;
     const parent = nodes[parentId] ?? findItem(items, parentId);
 
-    nodes[key] = { key, title, children };
+    // nodes[key] = { key, title, children };
+    nodes[key] = item;
     parent?.children?.push(item);
   }
 
   return root.children ?? [];
 }
 
-export function findItem(items: TreeDataNode[], itemId: UniqueIdentifier) {
+export function findItem<TRecord extends AnyObject>(
+  items: TreeDataNode<TRecord>[],
+  itemId: UniqueIdentifier,
+) {
   return items.find(({ key }) => key === itemId);
 }
 
-export function findItemDeep(
-  items: TreeDataNode[],
+export function findItemDeep<TRecord extends AnyObject>(
+  items: TreeDataNode<TRecord>[],
   itemId: UniqueIdentifier,
 ): TreeDataNode | undefined {
   for (const item of items) {
@@ -240,7 +254,10 @@ export function findItemDeep(
   return undefined;
 }
 
-export function removeItem(items: TreeDataNode[], id: UniqueIdentifier) {
+export function removeItem<TRecord extends AnyObject>(
+  items: TreeDataNode<TRecord>[],
+  id: UniqueIdentifier,
+) {
   const newItems = [];
 
   for (const item of items) {
@@ -258,27 +275,33 @@ export function removeItem(items: TreeDataNode[], id: UniqueIdentifier) {
   return newItems;
 }
 
-export function setProperty<T extends keyof TreeDataNode>(
-  items: TreeDataNode[],
-  id: UniqueIdentifier,
-  property: T,
-  setter: (value: TreeDataNode[T]) => TreeDataNode[T],
-) {
-  for (const item of items) {
-    if (item.key === id) {
-      item[property] = setter(item[property]);
-      continue;
-    }
+// export function setProperty<
+//   TRecord extends AnyObject,
+//   T extends keyof TreeDataNode<TRecord>,
+// >(
+//   items: TreeDataNode<TRecord>[],
+//   id: UniqueIdentifier,
+//   property: T,
+//   setter: (value: TreeDataNode[TRecord][T]) => TreeDataNode[TRecord][T],
+// ) {
+//   for (const item of items) {
+//     if (item.key === id) {
+//       item[property] = setter(item[property]);
+//       continue;
+//     }
 
-    if (item.children && item.children.length > 0) {
-      item.children = setProperty(item.children, id, property, setter);
-    }
-  }
+//     if (item.children && item.children.length > 0) {
+//       item.children = setProperty(item.children, id, property, setter);
+//     }
+//   }
 
-  return [...items];
-}
+//   return [...items];
+// }
 
-function countChildren(items: TreeDataNode[], count = 0): number {
+function countChildren<TRecord extends AnyObject>(
+  items: TreeDataNode<TRecord>[],
+  count = 0,
+): number {
   for (const { children } of items) {
     if (children && children.length > 0) {
       return countChildren(children, count + 1);
@@ -288,14 +311,17 @@ function countChildren(items: TreeDataNode[], count = 0): number {
   return count;
 }
 
-export function getChildCount(items: TreeDataNode[], id: UniqueIdentifier) {
+export function getChildCount<TRecord extends AnyObject>(
+  items: TreeDataNode<TRecord>[],
+  id: UniqueIdentifier,
+) {
   const item = findItemDeep(items, id);
 
   return item?.children ? countChildren(item.children) : 0;
 }
 
-export function removeChildrenOf<T extends AnyObject>(
-  items: FlattenedNode<T>[],
+export function removeChildrenOf<TRecord extends AnyObject>(
+  items: FlattenedNode<TRecord>[],
   ids: UniqueIdentifier[],
 ) {
   const excludeParentIds = [...ids];

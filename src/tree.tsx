@@ -9,6 +9,7 @@ import type {
   Modifier,
   UniqueIdentifier,
 } from "@dnd-kit/core";
+import type { ReactNode } from "react";
 import React, {
   useCallback,
   useEffect,
@@ -93,7 +94,7 @@ type TreeProps<TRecord extends AnyObject = AnyObject> = {
   indicator?: boolean;
   removable?: boolean;
 
-  classNames?: TreeItemProps["classNames"];
+  classNames?: TreeItemProps<TRecord>["classNames"];
   /** Allow animation or not */
   disableAnimation?: {
     drop?: boolean;
@@ -180,6 +181,8 @@ type TreeProps<TRecord extends AnyObject = AnyObject> = {
     flattenedItems: FlattenedNode<TRecord>[];
     items: TreeDataNode<TRecord>[];
   }) => void;
+
+  wrapContent?: (ctx: { children: ReactNode; record: TRecord }) => ReactNode;
 };
 const Tree = <TRecord extends AnyObject = AnyObject>({
   treeData,
@@ -205,6 +208,8 @@ const Tree = <TRecord extends AnyObject = AnyObject>({
 
   allowDrop,
   allowDepthOnDrag,
+
+  wrapContent,
 }: TreeProps<TRecord>) => {
   // =========================== Expanded ===========================
   const [expandedKeys, setExpandedKeys] = useMergedState(
@@ -217,7 +222,7 @@ const Tree = <TRecord extends AnyObject = AnyObject>({
     },
   );
 
-  const [items, setItems] = useState<TreeDataNode[]>(treeData);
+  const [items, setItems] = useState<TreeDataNode<TRecord>[]>(treeData);
   useEffect(() => {
     setItems(treeData);
   }, [treeData]);
@@ -329,7 +334,7 @@ const Tree = <TRecord extends AnyObject = AnyObject>({
       >
         <ul role="tree">
           {flattenedItems.map(
-            ({ key, title, depth, icon, isLeaf, extra, onClick }) => {
+            ({ key, title, depth, icon, isLeaf, extra, record }) => {
               const collapsed = expandedKeys.includes(key);
               return (
                 <TreeItem
@@ -362,7 +367,9 @@ const Tree = <TRecord extends AnyObject = AnyObject>({
                   // }
 
                   extra={extra}
-                  onClick={onClick}
+                  wrapContent={wrapContent}
+                  record={record}
+                  // onClick={onClick}
                 />
               );
             },
@@ -400,6 +407,7 @@ const Tree = <TRecord extends AnyObject = AnyObject>({
                   disableAnimation={disableAnimation}
                   classNames={classNames}
                   isLeaf={activeItem.isLeaf}
+                  record={activeItem.record}
                 />
               ) : (
                 <></>

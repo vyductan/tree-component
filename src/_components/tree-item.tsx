@@ -1,9 +1,11 @@
 // TreeItem.tsx
 import type { UniqueIdentifier } from "@dnd-kit/core";
 import type { AnimateLayoutChanges } from "@dnd-kit/sortable";
+import type { ReactNode } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+import type { AnyObject } from "@acme/ui/types";
 import { Button } from "@acme/ui/components/button";
 import { Icon } from "@acme/ui/icons";
 import { cn } from "@acme/ui/lib/utils";
@@ -17,8 +19,11 @@ const animateLayoutChanges: AnimateLayoutChanges = ({
   wasDragging,
 }) => (isSorting || wasDragging ? false : true);
 
-type TreeItemProps = Omit<React.ComponentProps<"li">, "id"> &
-  Omit<TreeDataNode, "children"> & {
+type TreeItemProps<TRecord extends AnyObject> = Omit<
+  React.ComponentProps<"li">,
+  "id"
+> &
+  Omit<TreeDataNode<TRecord>, "children"> & {
     id: UniqueIdentifier;
     depth: number;
     indentationWidth: number;
@@ -49,9 +54,11 @@ type TreeItemProps = Omit<React.ComponentProps<"li">, "id"> &
     };
 
     extra?: React.ReactNode;
+
+    wrapContent?: (ctx: { children: ReactNode; record: TRecord }) => ReactNode;
   };
 
-export function TreeItem({
+export function TreeItem<TRecord extends AnyObject>({
   id,
   title,
 
@@ -78,9 +85,12 @@ export function TreeItem({
   classNames,
 
   extra,
+  wrapContent,
+
+  record,
 
   ...props
-}: TreeItemProps) {
+}: TreeItemProps<TRecord>) {
   const {
     attributes,
     isDragging,
@@ -108,42 +118,8 @@ export function TreeItem({
   const disableInteraction = isSorting;
   const disableSelection = iOS;
 
-  return (
-    <li
-      data-slot="tree-item"
-      role="treeitem"
-      className={cn(
-        "group/tree-item",
-        "-mb-px list-none pl-(--spacing-depth)",
-        // clone && "pointer-events-none inline-block p-0 pt-[5px] pl-2.5",
-        clone &&
-          cn(
-            "pointer-events-none mt-[5px] ml-2.5",
-            // inline-block
-            classNames?.clone,
-          ),
-        ghost && [
-          indicator && [
-            "relative z-10 -mb-px opacity-100",
-            // "*:data-[slot=tree-item-content]:relative *:data-[slot=tree-item-content]:bg-red-500",
-          ],
-          !indicator && "opacity-50",
-        ],
-        disableInteraction && "pointer-events-none",
-        disableSelection && "select-none",
-        classNames?.item,
-        // own
-        "relative",
-        // !!extra && "flex",
-      )}
-      ref={setDroppableNodeRef}
-      style={
-        {
-          "--spacing-depth": `${indentationWidth * depth}px`,
-        } as React.CSSProperties
-      }
-      {...props}
-    >
+  const Content = (
+    <>
       <div
         data-slot="tree-item-content"
         className={cn(
@@ -224,13 +200,13 @@ export function TreeItem({
           />
         )}
         {/* <span
-          className={cn(
-            "text-primay absolute -top-2.5 -right-2.5 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-blue-300 text-sm font-semibold",
-            "select-none",
-          )}
-        >
-          3
-        </span> */}
+    className={cn(
+      "text-primay absolute -top-2.5 -right-2.5 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-blue-300 text-sm font-semibold",
+      "select-none",
+    )}
+  >
+    3
+  </span> */}
         {clone && childCount && childCount > 1 ? (
           <span
             className={cn(
@@ -246,6 +222,49 @@ export function TreeItem({
       </div>
 
       {extra}
+    </>
+  );
+  // const AsChildComp = itemAsChild ? itemAsChild({children: <></>}) : <></>;
+  const WrapContentComp = wrapContent
+    ? wrapContent({ children: Content, record })
+    : Content;
+  return (
+    <li
+      data-slot="tree-item"
+      role="treeitem"
+      className={cn(
+        "group/tree-item",
+        "-mb-px list-none pl-(--spacing-depth)",
+        // clone && "pointer-events-none inline-block p-0 pt-[5px] pl-2.5",
+        clone &&
+          cn(
+            "pointer-events-none mt-[5px] ml-2.5",
+            // inline-block
+            classNames?.clone,
+          ),
+        ghost && [
+          indicator && [
+            "relative z-10 -mb-px opacity-100",
+            // "*:data-[slot=tree-item-content]:relative *:data-[slot=tree-item-content]:bg-red-500",
+          ],
+          !indicator && "opacity-50",
+        ],
+        disableInteraction && "pointer-events-none",
+        disableSelection && "select-none",
+        classNames?.item,
+        // own
+        "relative",
+        // !!extra && "flex",
+      )}
+      ref={setDroppableNodeRef}
+      style={
+        {
+          "--spacing-depth": `${indentationWidth * depth}px`,
+        } as React.CSSProperties
+      }
+      {...props}
+    >
+      {WrapContentComp}
     </li>
   );
 }
