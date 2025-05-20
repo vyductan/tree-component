@@ -201,26 +201,33 @@ export function flattenTree<TRecord extends AnyObject>(
 export function buildTree<TRecord extends AnyObject>(
   flattenedItems: FlattenedNode<TRecord>[],
 ): TreeDataNode<TRecord>[] {
-  const root: TreeDataNode<TRecord> = {
+  // Create a type for internal nodes that might not have a record
+  type InternalNode = Omit<TreeDataNode<TRecord>, "record"> & {
+    record?: TRecord;
+  };
+
+  // Create root node without the record property
+  const root: InternalNode = {
     key: "root",
     title: "",
     children: [],
-    record: undefined,
   };
-  const nodes: Record<string, TreeDataNode<TRecord>> = { [root.key]: root };
+
+  const nodes: Record<string, InternalNode> = { [root.key]: root };
   const items = flattenedItems.map((item) => ({ ...item, children: [] }));
 
   for (const item of items) {
-    // const { key, title, children } = item;
     const { key } = item;
     const parentId = item.parentId ?? root.key;
     const parent = nodes[parentId] ?? findItem(items, parentId);
 
-    // nodes[key] = { key, title, children };
     nodes[key] = item;
-    parent?.children?.push(item);
+    if (parent?.children) {
+      parent.children.push(item as TreeDataNode<TRecord>);
+    }
   }
 
+  // We can safely cast to TreeDataNode[] since we know all items have the required record property
   return root.children ?? [];
 }
 
